@@ -4,18 +4,18 @@ on:
   push:
 permissions:
   contents: write
+env:
+  KODE_ID: 1dbO9IDVxjOx18ShhJuo_NUlMBcVpMHd-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Ambil kode aplikasi
         run: |
-          ID=1yDmbgKuZppO3Ki9uzC2_W_nOPFBIhCJk
-          curl -sSL "https://drive.usercontent.google.com/download?id=$ID&export=download&confirm=t" -o setup.sh || true
-          if ! echo "7837a09b418b8aac918d287d9be991e2a2da406a3a87eeccef08fb3ef4ba029b  setup.sh" | sha256sum -c -; then
-            curl -sSL "https://drive.google.com/uc?export=download&id=$ID" -o setup.sh
-            echo "7837a09b418b8aac918d287d9be991e2a2da406a3a87eeccef08fb3ef4ba029b  setup.sh" | sha256sum -c -
-          fi
+          ok() { head -1 setup.sh 2>/dev/null | grep -q '^mkdir -p app/src/main/java/com/app/penerjemah'; }
+          curl -sSL "https://drive.usercontent.google.com/download?id=$KODE_ID&export=download&confirm=t" -o setup.sh || true
+          ok || curl -sSL "https://drive.google.com/uc?export=download&id=$KODE_ID" -o setup.sh || true
+          ok || { echo "Gagal mengambil kode dari Google Drive"; head -c 400 setup.sh; exit 1; }
           bash setup.sh
       - uses: actions/setup-java@v4
         with:
@@ -35,5 +35,5 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
-          name: Penerjemah Live v2 (build ${{ github.run_number }})
+          name: Penerjemah Live v3 (build ${{ github.run_number }})
           files: PenerjemahLive.apk
