@@ -5,7 +5,7 @@ on:
 permissions:
   contents: write
 env:
-  KODE_ID: 12WvbB1rr6jn3-WBj7GLv9djWm2dEpcS8
+  KODE_ID: 18Q9ts314H3g9fL4ffg-G0iddm10DTqvj
 jobs:
   build:
     runs-on: ubuntu-latest
