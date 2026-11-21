@@ -1,1 +1,39 @@
-ok
+name: Build Penerjemah Live APK
+on:
+  workflow_dispatch:
+  push:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ambil kode aplikasi
+        run: |
+          ID=1yDmbgKuZppO3Ki9uzC2_W_nOPFBIhCJk
+          curl -sSL "https://drive.usercontent.google.com/download?id=$ID&export=download&confirm=t" -o setup.sh || true
+          if ! echo "7837a09b418b8aac918d287d9be991e2a2da406a3a87eeccef08fb3ef4ba029b  setup.sh" | sha256sum -c -; then
+            curl -sSL "https://drive.google.com/uc?export=download&id=$ID" -o setup.sh
+            echo "7837a09b418b8aac918d287d9be991e2a2da406a3a87eeccef08fb3ef4ba029b  setup.sh" | sha256sum -c -
+          fi
+          bash setup.sh
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+      - name: Build APK
+        run: |
+          gradle assembleDebug --no-daemon --stacktrace
+          cp app/build/outputs/apk/debug/app-debug.apk PenerjemahLive.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PenerjemahLive-APK
+          path: PenerjemahLive.apk
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Penerjemah Live v2 (build ${{ github.run_number }})
+          files: PenerjemahLive.apk
